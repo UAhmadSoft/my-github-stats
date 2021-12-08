@@ -7,7 +7,7 @@ import { mockImgAvatar } from '../utils/mockImages';
 const games = [...Array(24)].map((_, index) => ({
   id: faker.datatype.uuid(),
   user: { name: faker.name.findName() },
-  name: faker.name.findName(),
+  name: faker.lorem.slug(3),
   images: [mockImgAvatar(index + 1)],
   category: sample(['arcade', 'strategy']),
   description: faker.random.words(5),
