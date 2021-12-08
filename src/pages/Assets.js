@@ -1,18 +1,12 @@
 import { filter } from 'lodash';
-import { Icon } from '@iconify/react';
+import { sentenceCase } from 'change-case';
 import { useState } from 'react';
-import plusFill from '@iconify/icons-eva/plus-fill';
-import { Link as RouterLink } from 'react-router-dom';
-import faker from 'faker';
-
 // material
 import {
   Card,
   Table,
   Stack,
   Avatar,
-  Button,
-  Checkbox,
   TableRow,
   TableBody,
   TableCell,
@@ -23,22 +17,20 @@ import {
 } from '@mui/material';
 // components
 import Page from '../components/Page';
+import Label from '../components/Label';
 import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
-import {
-  UserListHead,
-  UserListToolbar,
-  UserMoreMenu,
-} from '../components/_dashboard/user';
+import { UserListHead, UserListToolbar } from '../components/_dashboard/user';
 //
-import USERLIST from '../_mocks_/user';
+import ASSETLIST from '../_mocks_/asset';
+import GameMoreMenu from 'src/components/_dashboard/game/UserMoreMenu';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'email', label: 'Email', alignRight: false },
-  { id: 'about', label: 'About', alignRight: false },
+  { name: 'name', label: 'name', alignRight: false },
+  { user: 'user', label: 'user', alignRight: false },
+  { price: 'price', label: 'price', alignRight: false },
   { id: '' },
 ];
 
@@ -76,7 +68,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function User() {
+export default function Assets() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
@@ -92,29 +84,19 @@ export default function User() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.name);
+      const newSelecteds = ASSETLIST.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
+  const getColor = (status) => {
+    return status === 'rejected'
+      ? 'error'
+      : status === 'approved'
+      ? 'primary'
+      : 'warning';
   };
 
   const handleChangePage = (event, newPage) => {
@@ -131,18 +113,18 @@ export default function User() {
   };
 
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - ASSETLIST.length) : 0;
 
-  const filteredUsers = applySortFilter(
-    USERLIST,
+  const filteredGames = applySortFilter(
+    ASSETLIST,
     getComparator(order, orderBy),
     filterName
   );
 
-  const isUserNotFound = filteredUsers.length === 0;
+  const isGameNotFound = filteredGames.length === 0;
 
   return (
-    <Page title='User | Minimal-UI'>
+    <Page title='Assets'>
       <Container>
         <Stack
           direction='row'
@@ -151,16 +133,8 @@ export default function User() {
           mb={5}
         >
           <Typography variant='h4' gutterBottom>
-            User
+            Assets
           </Typography>
-          <Button
-            variant='contained'
-            component={RouterLink}
-            to='#'
-            startIcon={<Icon icon={plusFill} />}
-          >
-            New User
-          </Button>
         </Stack>
 
         <Card>
@@ -177,16 +151,20 @@ export default function User() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={USERLIST.length}
+                  rowCount={ASSETLIST.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
+                  noCheckBox
                 />
                 <TableBody>
-                  {filteredUsers
+                  {filteredGames
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { id, name, about, email } = row;
+                      const { id, user, name, images, price } = row;
+                      {
+                        console.log(`row`, row);
+                      }
                       const isItemSelected = selected.indexOf(name) !== -1;
 
                       return (
@@ -198,30 +176,21 @@ export default function User() {
                           selected={isItemSelected}
                           aria-checked={isItemSelected}
                         >
-                          <TableCell padding='checkbox'>
-                            <Checkbox
-                              checked={isItemSelected}
-                              onChange={(event) => handleClick(event, name)}
-                            />
-                          </TableCell>
+                          <TableCell />
                           <TableCell component='th' scope='row' padding='none'>
                             <Stack
                               direction='row'
                               alignItems='center'
                               spacing={2}
                             >
-                              <Avatar alt={name} src={faker.internet.avatar} />
+                              <Avatar alt={name} src={images?.[0]} />
                               <Typography variant='subtitle2' noWrap>
                                 {name}
                               </Typography>
                             </Stack>
                           </TableCell>
-                          <TableCell align='left'>{email}</TableCell>
-                          <TableCell align='left'>{about}</TableCell>
-
-                          <TableCell align='right'>
-                            <UserMoreMenu />
-                          </TableCell>
+                          <TableCell align='left'>{user.name}</TableCell>
+                          <TableCell align='left'>{price}</TableCell>
                         </TableRow>
                       );
                     })}
@@ -231,7 +200,7 @@ export default function User() {
                     </TableRow>
                   )}
                 </TableBody>
-                {isUserNotFound && (
+                {isGameNotFound && (
                   <TableBody>
                     <TableRow>
                       <TableCell align='center' colSpan={6} sx={{ py: 3 }}>
@@ -247,7 +216,7 @@ export default function User() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component='div'
-            count={USERLIST.length}
+            count={ASSETLIST.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

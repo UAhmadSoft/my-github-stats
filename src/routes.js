@@ -10,6 +10,9 @@ import Products from './pages/Products';
 import Blog from './pages/Blog';
 import User from './pages/User';
 import NotFound from './pages/Page404';
+import Games from './pages/Games';
+import Assets from './pages/Assets';
+import DevelopmentRequests from './pages/DevRequests';
 
 // ----------------------------------------------------------------------
 
@@ -19,12 +22,15 @@ export default function Router() {
       path: '/dashboard',
       element: <DashboardLayout />,
       children: [
-        { element: <Navigate to="/dashboard/app" replace /> },
+        { element: <Navigate to='/dashboard/app' replace /> },
         { path: 'app', element: <DashboardApp /> },
         { path: 'user', element: <User /> },
+        { path: 'games', element: <Games /> },
+        { path: 'assets', element: <Assets /> },
+        { path: 'development-requests', element: <DevelopmentRequests /> },
         { path: 'products', element: <Products /> },
-        { path: 'blog', element: <Blog /> }
-      ]
+        { path: 'blog', element: <Blog /> },
+      ],
     },
     {
       path: '/',
@@ -33,10 +39,10 @@ export default function Router() {
         { path: 'login', element: <Login /> },
         { path: 'register', element: <Register /> },
         { path: '404', element: <NotFound /> },
-        { path: '/', element: <Navigate to="/dashboard" /> },
-        { path: '*', element: <Navigate to="/404" /> }
-      ]
+        { path: '/', element: <Navigate to='/dashboard' /> },
+        { path: '*', element: <Navigate to='/404' /> },
+      ],
     },
-    { path: '*', element: <Navigate to="/404" replace /> }
+    { path: '*', element: <Navigate to='/404' replace /> },
   ]);
 }

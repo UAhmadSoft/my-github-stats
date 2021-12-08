@@ -1,10 +1,9 @@
 import { filter } from 'lodash';
 import { Icon } from '@iconify/react';
+import { sentenceCase } from 'change-case';
 import { useState } from 'react';
 import plusFill from '@iconify/icons-eva/plus-fill';
 import { Link as RouterLink } from 'react-router-dom';
-import faker from 'faker';
-
 // material
 import {
   Card,
@@ -23,6 +22,7 @@ import {
 } from '@mui/material';
 // components
 import Page from '../components/Page';
+import Label from '../components/Label';
 import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
 import {
@@ -37,8 +37,10 @@ import USERLIST from '../_mocks_/user';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
-  { id: 'email', label: 'Email', alignRight: false },
-  { id: 'about', label: 'About', alignRight: false },
+  { id: 'company', label: 'Company', alignRight: false },
+  { id: 'role', label: 'Role', alignRight: false },
+  { id: 'isVerified', label: 'Verified', alignRight: false },
+  { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
 
@@ -76,7 +78,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function User() {
+export default function DevelopmentRequests() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
@@ -186,7 +188,15 @@ export default function User() {
                   {filteredUsers
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { id, name, about, email } = row;
+                      const {
+                        id,
+                        name,
+                        role,
+                        status,
+                        company,
+                        avatarUrl,
+                        isVerified,
+                      } = row;
                       const isItemSelected = selected.indexOf(name) !== -1;
 
                       return (
@@ -210,14 +220,27 @@ export default function User() {
                               alignItems='center'
                               spacing={2}
                             >
-                              <Avatar alt={name} src={faker.internet.avatar} />
+                              <Avatar alt={name} src={avatarUrl} />
                               <Typography variant='subtitle2' noWrap>
                                 {name}
                               </Typography>
                             </Stack>
                           </TableCell>
-                          <TableCell align='left'>{email}</TableCell>
-                          <TableCell align='left'>{about}</TableCell>
+                          <TableCell align='left'>{company}</TableCell>
+                          <TableCell align='left'>{role}</TableCell>
+                          <TableCell align='left'>
+                            {isVerified ? 'Yes' : 'No'}
+                          </TableCell>
+                          <TableCell align='left'>
+                            <Label
+                              variant='ghost'
+                              color={
+                                (status === 'banned' && 'error') || 'success'
+                              }
+                            >
+                              {sentenceCase(status)}
+                            </Label>
+                          </TableCell>
 
                           <TableCell align='right'>
                             <UserMoreMenu />
